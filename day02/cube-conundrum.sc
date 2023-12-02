@@ -20,5 +20,16 @@ def parse(line: String): Game =
 def possible(game: Game): Boolean =
   game.rounds.forall(r => r.red <= 12 && r.green <= 13 && r.blue <= 14)
 
-val lines = io.Source.fromFile("input.txt").getLines()
-println(lines.map(parse).filter(possible).map(_.no).sum)
+def minimumPower(game: Game): Int =
+  val min = game.rounds.foldLeft(Round(0, 0, 0))((curr, next) =>
+    Round(
+      Vector(curr.red, next.red).max,
+      Vector(curr.green, next.green).max,
+      Vector(curr.blue, next.blue).max
+    )
+  )
+  min.red * min.green * min.blue
+
+val games = io.Source.fromFile("input.txt").getLines.map(parse).toList
+println(games.filter(possible).map(_.no).sum)
+println(games.map(minimumPower).sum)
