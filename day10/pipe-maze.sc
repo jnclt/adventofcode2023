@@ -23,3 +23,5 @@ def cycle(from: (Int, Int), acc: Vector[(Int, Int)]): Vector[(Int, Int)] =
 
 val (start, second) = ((62, 61), (63, 61))  // manual lookup
 println(cycle(second, Vector(start)).size / 2)
+
+// part 2: replace LFJ7 with └┌ ┘┐ & flood-fill with https://paint.js.org & manual counting 
