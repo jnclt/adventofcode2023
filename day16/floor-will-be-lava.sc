@@ -15,8 +15,8 @@ def turnSlash(dir: Point) = Point(dir.x, dir.y)
 
 def tile(at: Point) = grid(at.y)(at.x)
 
-def beam(): Set[Point] =
-  var moves = List((Point(0, -1), Point(0, 1)))
+def beam(from: Point, dir: Point): Int =
+  var moves = List((from, dir))
   var visited = Set[(Point, Point)]()
 
   while (moves.nonEmpty)
@@ -37,7 +37,15 @@ def beam(): Set[Point] =
             moves ::= (at, Point(0, 1))
             moves ::= (at, Point(0, -1))
           case _ => moves ::= (at, dir)
-  visited.map(_._1)
+  visited.map(_._1).size
 
-val light = beam()
-println(light.size)
+println(beam(Point(0, -1), Point(0, 1)))
+
+println(
+  List(
+    (0 to maxRow).map(i => beam(Point(i, -1), Point(0, 1))).max,
+    (0 to maxRow).map(i => beam(Point(i, maxCol + 1), Point(0, -1))).max,
+    (0 to maxCol).map(i => beam(Point(-1, i), Point(1, 0))).max,
+    (0 to maxCol).map(i => beam(Point(maxRow + 1, i), Point(-1, 0))).max
+  ).max
+)
