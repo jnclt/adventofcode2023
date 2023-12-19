@@ -27,7 +27,49 @@ def passed(wf: List[String])(part: Part): Boolean =
         case name if """([a-z]+)""".r matches name => workflows(name)
         case _                                     => rest
       passed(next)(part)
-    case _ => false
+    case _ => false // "R" :: nil
 
 val accepted = parts.filter(passed(workflows("in"))).toList
 println(accepted.map(p => p("x") + p("m") + p("a") + p("s")).sum)
+
+type PartRange = Map[String, Range]
+case class Node(partRange: PartRange, succ: Set[Node])
+
+def intersect(l: Range, r: Range): Range =
+  (l.start max r.start) to (l.end min r.end)
+def leaves(wf: List[String], partRange: PartRange): List[PartRange] =
+  if !partRange.values.forall(_.nonEmpty) then List()
+  else
+    wf match
+      case "A" :: nil => List(partRange)
+      case "R" :: nil => List()
+      case rule :: rest =>
+        rule match
+          case s"${att}>${value}:${name}" =>
+            val lRange: PartRange = partRange.updated(
+              att,
+              intersect(partRange(att), value.toInt + 1 to 4000)
+            )
+            val rRange: PartRange = partRange.updated(
+              att,
+              intersect(partRange(att), 1 to value.toInt)
+            )
+            leaves(workflows(name), lRange) ++ leaves(rest, rRange)
+          case s"${att}<${value}:${name}" =>
+            val lRange: PartRange = partRange.updated(
+              att,
+              intersect(partRange(att), 1 to value.toInt - 1)
+            )
+            val rRange: PartRange = partRange.updated(
+              att,
+              intersect(partRange(att), value.toInt to 4000)
+            )
+            leaves(workflows(name), lRange) ++ leaves(rest, rRange)
+          case name => leaves(workflows(name), partRange)
+
+val acceptedRanges =
+  leaves(workflows("in"), "xmas".split("").zip(List.fill(4)(1 to 4000)).toMap)
+val total = acceptedRanges
+  .map(_.values.map(_.size.toLong).product)
+  .sum
+println(total)
